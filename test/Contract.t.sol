@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.10;
+pragma solidity >=0.6.0 <0.9.0;
 
-import {DSTest} from "ds-test/test.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-contract ContractTest is DSTest {
-    Vm internal constant vm = Vm(HEVM_ADDRESS);
+import {Test} from "../src/Test.sol";
 
+contract ContractTest is Test {
     function setUp() public {}
 
     function testExample() public {
