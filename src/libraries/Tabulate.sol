@@ -34,9 +34,9 @@ library Tabulate {
     );
     error InvalidLengths(uint256 stringLen, uint256 paddedLen);
 
-    // ==============================
-    // ===== External functions =====
-    // ==============================
+    // =============================
+    // ===== Library functions =====
+    // =============================
 
     function log(string[][] memory _table) internal view {
         uint256[] memory widths = getDefaultWidths(_table);
@@ -87,138 +87,6 @@ library Tabulate {
 
             console.log(formatRow(row, _widths, _alignments));
             console.log(separator);
-        }
-    }
-
-    // ==============================
-    // ===== Internal functions =====
-    // ==============================
-
-    function getDefaultWidths(string[][] memory _table)
-        internal
-        pure
-        returns (uint256[] memory widths_)
-    {
-        if (_table.length == 0 || _table[0].length == 0) {
-            revert EmptyTable();
-        }
-
-        uint256 numRows = _table.length;
-        uint256 numCols = _table[0].length;
-
-        widths_ = new uint256[](numCols);
-        for (uint256 i; i < numRows; ++i) {
-            for (uint256 j; j < numCols; ++j) {
-                widths_[j] = Math.max(widths_[j], bytes(_table[i][j]).length);
-            }
-        }
-    }
-
-    function getDefaultAlignments(uint256 _numCols)
-        internal
-        pure
-        returns (Alignment[] memory alignments_)
-    {
-        alignments_ = new Alignment[](_numCols);
-        alignments_[0] = Alignment.LEFT;
-        for (uint256 j = 1; j < _numCols; ++j) {
-            alignments_[j] = Alignment.RIGHT;
-        }
-    }
-
-    function formatRowSeparator(uint256 _length)
-        internal
-        pure
-        returns (string memory out_)
-    {
-        out_ = new string(_length);
-        for (uint256 i; 32 * i < _length; ++i) {
-            uint256 offset = 32 * (i + 1);
-            assembly {
-                mstore(add(out_, offset), SEPARATOR_ROW)
-            }
-        }
-    }
-
-    function padRightInPlace(
-        string memory _in,
-        uint256 _length,
-        string memory _out,
-        uint256 _left
-    ) internal pure {
-        if (bytes(_in).length > _length) {
-            revert InvalidLengths(bytes(_in).length, _length);
-        }
-
-        for (uint256 i; 32 * i < _length; ++i) {
-            bytes32 slot;
-            uint256 offset = _left + 32 * i;
-            if (32 * i < bytes(_in).length) {
-                uint256 offsetIn = 32 * (i + 1);
-                assembly {
-                    slot := mload(add(_in, offsetIn))
-                }
-                uint256 remaining = bytes(_in).length - 32 * i;
-                if (remaining < 32) {
-                    assembly {
-                        slot := or(slot, shr(mul(8, remaining), BLANK_SPACES))
-                    }
-                }
-            } else {
-                slot = BLANK_SPACES;
-            }
-            assembly {
-                mstore(add(_out, offset), slot)
-            }
-        }
-    }
-
-    function padLeftInPlace(
-        string memory _in,
-        uint256 _length,
-        string memory _out,
-        uint256 _left
-    ) internal pure {
-        if (bytes(_in).length > _length) {
-            revert InvalidLengths(bytes(_in).length, _length);
-        }
-
-        for (uint256 i; 32 * i < _length; ++i) {
-            bytes32 slot;
-            if (32 * i < bytes(_in).length) {
-                uint256 offsetIn = bytes(_in).length - 32 * i;
-                assembly {
-                    slot := mload(add(_in, offsetIn))
-                }
-                uint256 remainingIn = bytes(_in).length - 32 * i;
-                if (remainingIn < 32) {
-                    uint256 shiftBitsInv = 8 * (32 - remainingIn);
-                    assembly {
-                        slot := and(slot, shr(shiftBitsInv, DEFAULT_MASK))
-                        slot := or(
-                            slot,
-                            shl(sub(256, shiftBitsInv), BLANK_SPACES)
-                        )
-                    }
-                }
-            } else {
-                slot = BLANK_SPACES;
-            }
-
-            uint256 offset = _left + _length - 32 * (i + 1);
-            uint256 remaining = _length - 32 * i;
-            if (remaining < 32) {
-                uint256 shiftBits = 8 * (32 - remaining);
-                assembly {
-                    let mask := shr(shiftBits, DEFAULT_MASK)
-                    let loc := add(_out, offset)
-                    mstore(loc, add(mload(loc), and(slot, mask)))
-                }
-            } else {
-                assembly {
-                    mstore(add(_out, offset), slot)
-                }
-            }
         }
     }
 
@@ -282,6 +150,156 @@ library Tabulate {
 
         assembly {
             mstore(add(out_, offset), colSeparator32)
+        }
+    }
+
+    function padRight(string memory _in, uint256 _length)
+        internal
+        pure
+        returns (string memory out_)
+    {
+        out_ = new string(_length);
+        padRightInPlace(_in, _length, out_, 32);
+    }
+
+    function padLeft(string memory _in, uint256 _length)
+        internal
+        pure
+        returns (string memory out_)
+    {
+        out_ = new string(_length);
+        padLeftInPlace(_in, _length, out_, 32);
+    }
+
+    function getDefaultWidths(string[][] memory _table)
+        internal
+        pure
+        returns (uint256[] memory widths_)
+    {
+        if (_table.length == 0 || _table[0].length == 0) {
+            revert EmptyTable();
+        }
+
+        uint256 numRows = _table.length;
+        uint256 numCols = _table[0].length;
+
+        widths_ = new uint256[](numCols);
+        for (uint256 i; i < numRows; ++i) {
+            for (uint256 j; j < numCols; ++j) {
+                widths_[j] = Math.max(widths_[j], bytes(_table[i][j]).length);
+            }
+        }
+    }
+
+    function getDefaultAlignments(uint256 _numCols)
+        internal
+        pure
+        returns (Alignment[] memory alignments_)
+    {
+        alignments_ = new Alignment[](_numCols);
+        alignments_[0] = Alignment.LEFT;
+        for (uint256 j = 1; j < _numCols; ++j) {
+            alignments_[j] = Alignment.RIGHT;
+        }
+    }
+
+    function formatRowSeparator(uint256 _length)
+        internal
+        pure
+        returns (string memory out_)
+    {
+        out_ = new string(_length);
+        for (uint256 i; 32 * i < _length; ++i) {
+            uint256 offset = 32 * (i + 1);
+            assembly {
+                mstore(add(out_, offset), SEPARATOR_ROW)
+            }
+        }
+    }
+
+    // =============================
+    // ===== Private functions =====
+    // =============================
+
+    function padRightInPlace(
+        string memory _in,
+        uint256 _length,
+        string memory _out,
+        uint256 _left
+    ) private pure {
+        if (bytes(_in).length > _length) {
+            revert InvalidLengths(bytes(_in).length, _length);
+        }
+
+        for (uint256 i; 32 * i < _length; ++i) {
+            bytes32 slot;
+            uint256 offset = _left + 32 * i;
+            if (32 * i < bytes(_in).length) {
+                uint256 offsetIn = 32 * (i + 1);
+                assembly {
+                    slot := mload(add(_in, offsetIn))
+                }
+                uint256 remaining = bytes(_in).length - 32 * i;
+                if (remaining < 32) {
+                    assembly {
+                        slot := or(slot, shr(mul(8, remaining), BLANK_SPACES))
+                    }
+                }
+            } else {
+                slot = BLANK_SPACES;
+            }
+            assembly {
+                mstore(add(_out, offset), slot)
+            }
+        }
+    }
+
+    function padLeftInPlace(
+        string memory _in,
+        uint256 _length,
+        string memory _out,
+        uint256 _left
+    ) private pure {
+        if (bytes(_in).length > _length) {
+            revert InvalidLengths(bytes(_in).length, _length);
+        }
+
+        for (uint256 i; 32 * i < _length; ++i) {
+            bytes32 slot;
+            if (32 * i < bytes(_in).length) {
+                uint256 offsetIn = bytes(_in).length - 32 * i;
+                assembly {
+                    slot := mload(add(_in, offsetIn))
+                }
+                uint256 remainingIn = bytes(_in).length - 32 * i;
+                if (remainingIn < 32) {
+                    uint256 shiftBitsInv = 8 * (32 - remainingIn);
+                    assembly {
+                        slot := and(slot, shr(shiftBitsInv, DEFAULT_MASK))
+                        slot := or(
+                            slot,
+                            shl(sub(256, shiftBitsInv), BLANK_SPACES)
+                        )
+                    }
+                }
+            } else {
+                slot = BLANK_SPACES;
+            }
+
+            uint256 offset = _left + _length - 32 * (i + 1);
+            uint256 remaining = _length - 32 * i;
+            if (remaining < 32) {
+                uint256 shiftBits = 8 * (32 - remaining);
+                assembly {
+                    let mask := shr(shiftBits, DEFAULT_MASK)
+                    let loc := add(_out, offset)
+                    mstore(loc, add(mload(loc), and(slot, mask)))
+                }
+            } else {
+                assembly {
+                    mstore(add(_out, offset), slot)
+                }
+            }
         }
     }
 }

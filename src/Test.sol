@@ -59,13 +59,13 @@ contract Test is TestBase {
         if (!a.contains(b)) {
             emit log("Error: (b in a) not satisfied [IntervalUint256]");
             if (b.size() == 0) {
-                emit log_named_uint("       Expected", b.mean());
+                emit log_named_uint("       Expected", b.lo);
             } else {
                 emit log_named_uint("  Expected (lo)", b.lo);
                 emit log_named_uint("           (hi)", b.hi);
             }
             if (a.size() == 0) {
-                emit log_named_uint("         Actual", a.mean());
+                emit log_named_uint("         Actual", a.lo);
             } else {
                 emit log_named_uint("    Actual (lo)", a.lo);
                 emit log_named_uint("           (hi)", a.hi);
