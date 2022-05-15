@@ -1,0 +1,8 @@
+{
+  "filter_paths": "lib|test",
+  "solc_remaps": [
+    "forge-std/=lib/forge-std/src/",
+    "multicall/=lib/multicall/src/",
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+  ]
+}

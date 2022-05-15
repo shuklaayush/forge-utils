@@ -3,9 +3,11 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 remappings = [
-  'forge-std/=lib/forge-std/src/',
-  'multicall/=lib/multicall/src/',
-  'openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/',
+  "forge-std/=lib/forge-std/src/",
+  "multicall/=lib/multicall/src/",
+  "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
 ]
 verbosity = 3
-# See more config options https://github.com/gakonst/foundry/tree/master/config
+
+[ci]
+fuzz-runs = 10_000
