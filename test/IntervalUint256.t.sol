@@ -2,10 +2,10 @@
 pragma solidity >=0.6.0 <0.9.0;
 
 import {Test} from "../src/Test.sol";
-import {IntervalUint256, IntervalUint256Utils} from "../src/libraries/IntervalUint256.sol";
+import {IntervalUint256, IntervalUint256Lib} from "../src/libraries/IntervalUint256.sol";
 
 contract IntervalUint256Test is Test {
-    using IntervalUint256Utils for IntervalUint256;
+    using IntervalUint256Lib for IntervalUint256;
 
     function testAssertEq() public {
         uint256 a = 5;

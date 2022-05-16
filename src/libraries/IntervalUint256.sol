@@ -6,8 +6,8 @@ struct IntervalUint256 {
     uint256 hi;
 }
 
-library IntervalUint256Utils {
-    function fromUint256(uint256 val)
+library IntervalUint256Lib {
+    function fromVal(uint256 val)
         internal
         pure
         returns (IntervalUint256 memory)
@@ -251,3 +251,8 @@ library IntervalUint256Utils {
         return u1.lo >= u2.lo;
     }
 }
+
+/*
+TODO:
+- How to implement logical operators on intervals? Should I compare low or high value in > etc.?
+*/
