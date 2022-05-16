@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.6.0 <0.9.0;
 
-import {Test} from "../src/Test.sol";
+import {TestPlus} from "../src/TestPlus.sol";
 import {IntervalUint256, IntervalUint256Lib} from "../src/libraries/IntervalUint256.sol";
 
-contract IntervalUint256Test is Test {
+contract IntervalUint256Test is TestPlus {
     using IntervalUint256Lib for IntervalUint256;
 
     function testAssertEq() public {

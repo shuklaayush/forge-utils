@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.6.0 <0.9.0;
 
-import {Test as TestBase} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {IntervalUint256, IntervalUint256Lib} from "./libraries/IntervalUint256.sol";
 
-contract Test is TestBase {
+contract TestPlus is Test {
     // =====================
     // ===== Libraries =====
     // =====================

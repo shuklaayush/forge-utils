@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.6.0 <0.9.0;
 
-import {Test} from "../src/Test.sol";
+import {TestPlus} from "../src/TestPlus.sol";
 import {Alignment, Tabulate} from "../src/libraries/Tabulate.sol";
 
-contract TabulateTest is Test {
+contract TabulateTest is TestPlus {
     function testPadLeft() public {
         assertEq(Tabulate.padLeft("123", 5), "  123");
     }
