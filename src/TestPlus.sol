@@ -4,6 +4,7 @@ pragma solidity >=0.6.0 <0.9.0;
 import {Test} from "forge-std/Test.sol";
 
 import {IntervalUint256, IntervalUint256Lib} from "./libraries/IntervalUint256.sol";
+import {Trilean, TrileanLib} from "./libraries/Trilean.sol";
 
 contract TestPlus is Test {
     // =====================
@@ -11,6 +12,7 @@ contract TestPlus is Test {
     // =====================
 
     using IntervalUint256Lib for IntervalUint256;
+    using TrileanLib for Trilean;
 
     // ==========================
     // ===== Util Functions =====
@@ -85,7 +87,7 @@ contract TestPlus is Test {
     function assertLt(IntervalUint256 memory a, IntervalUint256 memory b)
         internal
     {
-        if (!a.lt(b)) {
+        if (a.lt(b) != Trilean.TRUE) {
             emit log("Error: a < b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
                 emit log_named_uint("       Expected", b.lo);
@@ -114,7 +116,7 @@ contract TestPlus is Test {
     function assertLe(IntervalUint256 memory a, IntervalUint256 memory b)
         internal
     {
-        if (!a.le(b)) {
+        if (a.le(b) != Trilean.TRUE) {
             emit log("Error: a <= b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
                 emit log_named_uint("       Expected", b.lo);
@@ -143,7 +145,7 @@ contract TestPlus is Test {
     function assertGt(IntervalUint256 memory a, IntervalUint256 memory b)
         internal
     {
-        if (!a.gt(b)) {
+        if (a.gt(b) != Trilean.TRUE) {
             emit log("Error: a > b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
                 emit log_named_uint("       Expected", b.lo);
@@ -172,7 +174,7 @@ contract TestPlus is Test {
     function assertGe(IntervalUint256 memory a, IntervalUint256 memory b)
         internal
     {
-        if (!a.ge(b)) {
+        if (a.ge(b) != Trilean.TRUE) {
             emit log("Error: a >= b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
                 emit log_named_uint("       Expected", b.lo);

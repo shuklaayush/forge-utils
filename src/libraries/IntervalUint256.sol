@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.6.0 <0.9.0;
 
+import {Trilean} from "./Trilean.sol";
+
 struct IntervalUint256 {
     uint256 lo;
     uint256 hi;
 }
 
+// TODO: Move somewhere else?
+function minmax(uint256 u1, uint256 u2) pure returns (uint256, uint256) {
+    return (u1 < u2) ? (u1, u2) : (u2, u1);
+}
+
+// Ref: http://www.dmitry-kazakov.de/ada/intervals.htm
 library IntervalUint256Lib {
     function fromVal(uint256 val)
         internal
@@ -66,14 +74,6 @@ library IntervalUint256Lib {
         return IntervalUint256(val - tol, val);
     }
 
-    function minmax(uint256 u1, uint256 u2)
-        private
-        pure
-        returns (uint256, uint256)
-    {
-        return (u1 < u2) ? (u1, u2) : (u2, u1);
-    }
-
     function mean(IntervalUint256 memory u) internal pure returns (uint256) {
         return (u.lo + u.hi) / 2;
     }
@@ -82,20 +82,14 @@ library IntervalUint256Lib {
         return u.hi - u.lo;
     }
 
+    // Arithmetic Operators
+
     function add(IntervalUint256 memory u1, uint256 u2)
         internal
         pure
         returns (IntervalUint256 memory)
     {
         return IntervalUint256(u1.lo + u2, u1.hi + u2);
-    }
-
-    function add(IntervalUint256 memory u1, IntervalUint256 memory u2)
-        internal
-        pure
-        returns (IntervalUint256 memory)
-    {
-        return IntervalUint256(u1.lo + u2.lo, u1.hi + u2.lo);
     }
 
     function sub(IntervalUint256 memory u1, uint256 u2)
@@ -114,32 +108,12 @@ library IntervalUint256Lib {
         return IntervalUint256(u2 - u1.lo, u2 - u1.hi);
     }
 
-    function sub(
-        IntervalUint256 memory u1,
-        IntervalUint256 memory u2,
-        bool _dependent
-    ) internal pure returns (IntervalUint256 memory) {
-        return
-            IntervalUint256(
-                _dependent ? u1.lo - u2.lo : u1.lo - u2.hi,
-                _dependent ? u1.hi - u2.hi : u1.hi - u2.lo
-            );
-    }
-
     function mul(IntervalUint256 memory u1, uint256 u2)
         internal
         pure
         returns (IntervalUint256 memory)
     {
         return IntervalUint256(u1.lo * u2, u1.hi * u2);
-    }
-
-    function mul(IntervalUint256 memory u1, IntervalUint256 memory u2)
-        internal
-        pure
-        returns (IntervalUint256 memory)
-    {
-        return IntervalUint256(u1.lo * u2.lo, u1.hi * u2.hi);
     }
 
     function div(IntervalUint256 memory u1, uint256 u2)
@@ -150,18 +124,59 @@ library IntervalUint256Lib {
         return IntervalUint256(u1.lo / u2, u1.hi / u2);
     }
 
-    function div(
-        IntervalUint256 memory u1,
-        IntervalUint256 memory u2,
-        bool _dependent
-    ) internal pure returns (IntervalUint256 memory) {
-        if (_dependent) {
-            (uint256 lo, uint256 hi) = minmax(u1.lo / u2.lo, u1.hi / u2.hi);
-            return IntervalUint256(lo, hi);
-        } else {
-            return IntervalUint256(u1.lo / u2.hi, u1.hi / u2.lo);
-        }
+    function add(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        return IntervalUint256(u1.lo + u2.lo, u1.hi + u2.lo);
     }
+
+    function sub(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        return IntervalUint256(u1.lo - u2.hi, u1.hi - u2.lo);
+    }
+
+    function mul(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        return IntervalUint256(u1.lo * u2.lo, u1.hi * u2.hi);
+    }
+
+    function div(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        return IntervalUint256(u1.lo / u2.hi, u1.hi / u2.lo);
+    }
+
+    function subDependent(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        return IntervalUint256(u1.lo - u2.lo, u1.hi - u2.hi);
+    }
+
+    function divDependent(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (IntervalUint256 memory)
+    {
+        (uint256 lo, uint256 hi) = minmax(u1.lo / u2.lo, u1.hi / u2.hi);
+        return IntervalUint256(lo, hi);
+    }
+
+    // Logical Operators
+
+    // Boolean
+    // A la set theory
 
     function eq(IntervalUint256 memory u1, IntervalUint256 memory u2)
         internal
@@ -170,6 +185,16 @@ library IntervalUint256Lib {
     {
         return u1.lo == u2.lo && u1.hi == u2.hi;
     }
+
+    function neq(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (bool)
+    {
+        return u1.lo != u2.lo || u1.hi != u2.hi;
+    }
+
+    // Relational Operators
 
     function contains(IntervalUint256 memory u1, uint256 u2)
         internal
@@ -195,28 +220,12 @@ library IntervalUint256Lib {
         return u1.hi < u2;
     }
 
-    function lt(IntervalUint256 memory u1, IntervalUint256 memory u2)
-        internal
-        pure
-        returns (bool)
-    {
-        return u1.hi < u2.lo;
-    }
-
     function le(IntervalUint256 memory u1, uint256 u2)
         internal
         pure
         returns (bool)
     {
         return u1.hi <= u2;
-    }
-
-    function le(IntervalUint256 memory u1, IntervalUint256 memory u2)
-        internal
-        pure
-        returns (bool)
-    {
-        return u1.hi <= u2.lo;
     }
 
     function gt(IntervalUint256 memory u1, uint256 u2)
@@ -227,14 +236,6 @@ library IntervalUint256Lib {
         return u1.lo > u2;
     }
 
-    function gt(IntervalUint256 memory u1, IntervalUint256 memory u2)
-        internal
-        pure
-        returns (bool)
-    {
-        return u1.lo > u2.lo;
-    }
-
     function ge(IntervalUint256 memory u1, uint256 u2)
         internal
         pure
@@ -243,16 +244,74 @@ library IntervalUint256Lib {
         return u1.lo >= u2;
     }
 
+    // Trilean
+    // If:
+    // - ∀ x ∈ [a,b] ∀ y ∈ [c,d] (x op y) => true
+    // - ∀ x ∈ [a,b] ∀ y ∈ [c,d] !(x op y) => false
+    // - otherwise => indeterminate
+
+    function lt(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (Trilean)
+    {
+        if (u1.hi < u2.lo) {
+            return Trilean.TRUE;
+        } else if (u1.lo >= u2.hi) {
+            return Trilean.FALSE;
+        } else {
+            return Trilean.INDETERMINATE;
+        }
+    }
+
+    // not(gt)
+    function le(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (Trilean)
+    {
+        if (u1.hi <= u2.lo) {
+            return Trilean.TRUE;
+        } else if (u1.lo > u2.hi) {
+            return Trilean.FALSE;
+        } else {
+            return Trilean.INDETERMINATE;
+        }
+    }
+
+    function gt(IntervalUint256 memory u1, IntervalUint256 memory u2)
+        internal
+        pure
+        returns (Trilean)
+    {
+        if (u1.lo > u2.hi) {
+            return Trilean.TRUE;
+        } else if (u1.hi <= u2.lo) {
+            return Trilean.FALSE;
+        } else {
+            return Trilean.INDETERMINATE;
+        }
+    }
+
+    // not(lt)
     function ge(IntervalUint256 memory u1, IntervalUint256 memory u2)
         internal
         pure
-        returns (bool)
+        returns (Trilean)
     {
-        return u1.lo >= u2.lo;
+        if (u1.lo >= u2.hi) {
+            return Trilean.TRUE;
+        } else if (u1.hi < u2.lo) {
+            return Trilean.FALSE;
+        } else {
+            return Trilean.INDETERMINATE;
+        }
     }
 }
 
 /*
 TODO:
 - How to implement logical operators on intervals? Should I compare low or high value in > etc.?
+- Comments
+- isIn() operator, add functions witht uint256 as first argument
 */
