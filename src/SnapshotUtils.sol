@@ -3,8 +3,8 @@ pragma solidity >=0.6.0 <0.9.0;
 
 import {Vm} from "forge-std/Vm.sol";
 import {console2 as console} from "forge-std/console2.sol";
-import {Multicall3} from "multicall/Multicall3.sol";
 
+import {IMulticall3} from "./interfaces/IMulticall3.sol";
 import {Strings} from "./libraries/Strings.sol";
 import {Tabulate} from "./libraries/Tabulate.sol";
 
@@ -12,6 +12,8 @@ struct InitializableUint256 {
     uint256 val;
     bool initialized;
 }
+
+string constant MULTICALL3_ARTIFACT = "../artifacts/Multicall3.json";
 
 contract DictionaryUint256 {
     // =================
@@ -92,15 +94,15 @@ contract SnapshotManager {
 
     Vm constant vm_snapshot_manager =
         Vm(address(bytes20(uint160(uint256(keccak256("hevm cheat code"))))));
-    Multicall3 constant MULTICALL =
-        Multicall3(0xcA11bde05977b3631167028862bE2a173976CA11);
+    IMulticall3 constant MULTICALL =
+        IMulticall3(0xcA11bde05977b3631167028862bE2a173976CA11);
 
     // =================
     // ===== State =====
     // =================
 
     string[] private keys;
-    Multicall3.Call[] private calls;
+    IMulticall3.Call[] private calls;
 
     mapping(string => uint256) public idxPlusOne;
 
@@ -116,10 +118,10 @@ contract SnapshotManager {
 
     constructor() {
         if (address(MULTICALL).code.length == 0) {
-            vm_snapshot_manager.etch(
-                address(MULTICALL),
-                type(Multicall3).runtimeCode
+            bytes memory bytecode = vm_snapshot_manager.getCode(
+                MULTICALL3_ARTIFACT
             );
+            vm_snapshot_manager.etch(address(MULTICALL), bytecode);
         }
     }
 
@@ -133,9 +135,9 @@ contract SnapshotManager {
         if (idxPlusOneKey == 0) {
             idxPlusOne[_key] = keys.length + 1;
             keys.push(_key);
-            calls.push(Multicall3.Call(_target, _callData));
+            calls.push(IMulticall3.Call(_target, _callData));
         } else {
-            Multicall3.Call memory call = calls[idxPlusOneKey - 1];
+            IMulticall3.Call memory call = calls[idxPlusOneKey - 1];
             if (
                 call.target != _target ||
                 keccak256(call.callData) != keccak256(_callData)
