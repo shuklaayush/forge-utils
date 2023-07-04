@@ -17,13 +17,6 @@ repos:
       - id: commitlint
         stages: [commit-msg]
         additional_dependencies: ["@commitlint/config-conventional"]
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
-    hooks:
-      - id: prettier
-        files: \.(json|yaml|md|toml)$
-        additional_dependencies:
-          - "prettier-plugin-toml"
   - repo: https://github.com/shuklaayush/pre-commit-forge
     rev: v0.0.1
     hooks:
