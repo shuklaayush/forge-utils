@@ -21,9 +21,8 @@ repos:
     rev: v2.5.1
     hooks:
       - id: prettier
-        files: \.(sol|json|yaml|md|toml)$
+        files: \.(json|yaml|md|toml)$
         additional_dependencies:
-          - "prettier-plugin-solidity"
           - "prettier-plugin-toml"
   - repo: https://github.com/shuklaayush/pre-commit-forge
     rev: v0.0.1

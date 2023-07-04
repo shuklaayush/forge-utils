@@ -1,4 +1,4 @@
-[default]
+[profile.default]
 src = 'src'
 out = 'out'
 libs = ['lib']
@@ -9,5 +9,5 @@ remappings = [
 ]
 verbosity = 3
 
-[ci]
+[profile.ci]
 fuzz-runs = 10_000

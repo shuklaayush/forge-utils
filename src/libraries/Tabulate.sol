@@ -10,33 +10,28 @@ enum Alignment {
 }
 
 library Tabulate {
-    // =====================
-    // ===== Constants =====
-    // =====================
+    ////////////////////////////////////////////////////////////////////////////
+    // Constants
+    ////////////////////////////////////////////////////////////////////////////
 
     bytes32 constant SEPARATOR_ROW = "--------------------------------";
     bytes1 constant SEPARATOR_COL = "|";
 
     bytes32 constant BLANK_SPACES = "                                ";
 
-    bytes32 constant DEFAULT_MASK =
-        hex"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+    bytes32 constant DEFAULT_MASK = hex"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
-    // ==================
-    // ===== Errors =====
-    // ==================
+    ////////////////////////////////////////////////////////////////////////////
+    // Errors
+    ////////////////////////////////////////////////////////////////////////////
 
     error EmptyTable();
-    error UnequalLengths(
-        uint256 valuesLen,
-        uint256 widthsLen,
-        uint256 alignmentsLen
-    );
+    error UnequalLengths(uint256 valuesLen, uint256 widthsLen, uint256 alignmentsLen);
     error InvalidLengths(uint256 stringLen, uint256 paddedLen);
 
-    // =============================
-    // ===== Library functions =====
-    // =============================
+    ////////////////////////////////////////////////////////////////////////////
+    // Library functions
+    ////////////////////////////////////////////////////////////////////////////
 
     function log(string[][] memory _table) internal view {
         uint256[] memory widths = getDefaultWidths(_table);
@@ -44,29 +39,19 @@ library Tabulate {
         log(_table, widths);
     }
 
-    function log(string[][] memory _table, uint256[] memory _widths)
-        internal
-        view
-    {
+    function log(string[][] memory _table, uint256[] memory _widths) internal view {
         Alignment[] memory alignments = getDefaultAlignments(_widths.length);
 
         log(_table, _widths, alignments);
     }
 
-    function log(string[][] memory _table, Alignment[] memory _alignments)
-        internal
-        view
-    {
+    function log(string[][] memory _table, Alignment[] memory _alignments) internal view {
         uint256[] memory widths = getDefaultWidths(_table);
 
         log(_table, widths, _alignments);
     }
 
-    function log(
-        string[][] memory _table,
-        uint256[] memory _widths,
-        Alignment[] memory _alignments
-    ) internal view {
+    function log(string[][] memory _table, uint256[] memory _widths, Alignment[] memory _alignments) internal view {
         if (_table.length == 0 || _table[0].length == 0) {
             revert EmptyTable();
         }
@@ -90,19 +75,13 @@ library Tabulate {
         }
     }
 
-    function formatRow(
-        string[] memory _row,
-        uint256[] memory _widths,
-        Alignment[] memory _alignments
-    ) internal pure returns (string memory out_) {
-        if (
-            _row.length != _widths.length || _row.length != _alignments.length
-        ) {
-            revert UnequalLengths(
-                _row.length,
-                _widths.length,
-                _alignments.length
-            );
+    function formatRow(string[] memory _row, uint256[] memory _widths, Alignment[] memory _alignments)
+        internal
+        pure
+        returns (string memory out_)
+    {
+        if (_row.length != _widths.length || _row.length != _alignments.length) {
+            revert UnequalLengths(_row.length, _widths.length, _alignments.length);
         }
 
         uint256 numCols = _row.length;
@@ -153,29 +132,17 @@ library Tabulate {
         }
     }
 
-    function padRight(string memory _in, uint256 _length)
-        internal
-        pure
-        returns (string memory out_)
-    {
+    function padRight(string memory _in, uint256 _length) internal pure returns (string memory out_) {
         out_ = new string(_length);
         padRightInPlace(_in, _length, out_, 32);
     }
 
-    function padLeft(string memory _in, uint256 _length)
-        internal
-        pure
-        returns (string memory out_)
-    {
+    function padLeft(string memory _in, uint256 _length) internal pure returns (string memory out_) {
         out_ = new string(_length);
         padLeftInPlace(_in, _length, out_, 32);
     }
 
-    function getDefaultWidths(string[][] memory _table)
-        internal
-        pure
-        returns (uint256[] memory widths_)
-    {
+    function getDefaultWidths(string[][] memory _table) internal pure returns (uint256[] memory widths_) {
         if (_table.length == 0 || _table[0].length == 0) {
             revert EmptyTable();
         }
@@ -191,11 +158,7 @@ library Tabulate {
         }
     }
 
-    function getDefaultAlignments(uint256 _numCols)
-        internal
-        pure
-        returns (Alignment[] memory alignments_)
-    {
+    function getDefaultAlignments(uint256 _numCols) internal pure returns (Alignment[] memory alignments_) {
         alignments_ = new Alignment[](_numCols);
         alignments_[0] = Alignment.LEFT;
         for (uint256 j = 1; j < _numCols; ++j) {
@@ -203,11 +166,7 @@ library Tabulate {
         }
     }
 
-    function formatRowSeparator(uint256 _length)
-        internal
-        pure
-        returns (string memory out_)
-    {
+    function formatRowSeparator(uint256 _length) internal pure returns (string memory out_) {
         out_ = new string(_length);
         for (uint256 i; 32 * i < _length; ++i) {
             uint256 offset = 32 * (i + 1);
@@ -217,16 +176,11 @@ library Tabulate {
         }
     }
 
-    // =============================
-    // ===== Private functions =====
-    // =============================
+    ////////////////////////////////////////////////////////////////////////////
+    // Private functions
+    ////////////////////////////////////////////////////////////////////////////
 
-    function padRightInPlace(
-        string memory _in,
-        uint256 _length,
-        string memory _out,
-        uint256 _left
-    ) private pure {
+    function padRightInPlace(string memory _in, uint256 _length, string memory _out, uint256 _left) private pure {
         if (bytes(_in).length > _length) {
             revert InvalidLengths(bytes(_in).length, _length);
         }
@@ -254,12 +208,7 @@ library Tabulate {
         }
     }
 
-    function padLeftInPlace(
-        string memory _in,
-        uint256 _length,
-        string memory _out,
-        uint256 _left
-    ) private pure {
+    function padLeftInPlace(string memory _in, uint256 _length, string memory _out, uint256 _left) private pure {
         if (bytes(_in).length > _length) {
             revert InvalidLengths(bytes(_in).length, _length);
         }
@@ -276,10 +225,7 @@ library Tabulate {
                     uint256 shiftBitsInv = 8 * (32 - remainingIn);
                     assembly {
                         slot := and(slot, shr(shiftBitsInv, DEFAULT_MASK))
-                        slot := or(
-                            slot,
-                            shl(sub(256, shiftBitsInv), BLANK_SPACES)
-                        )
+                        slot := or(slot, shl(sub(256, shiftBitsInv), BLANK_SPACES))
                     }
                 }
             } else {

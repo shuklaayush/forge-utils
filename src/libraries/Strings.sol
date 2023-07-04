@@ -2,11 +2,7 @@
 pragma solidity ^0.8.0;
 
 library Strings {
-    function toString(uint256 value, bool isNegative)
-        internal
-        pure
-        returns (string memory)
-    {
+    function toString(uint256 value, bool isNegative) internal pure returns (string memory) {
         if (value == 0) {
             return "0";
         }

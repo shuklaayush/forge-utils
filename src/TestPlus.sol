@@ -7,45 +7,35 @@ import {IntervalUint256, IntervalUint256Lib} from "./libraries/IntervalUint256.s
 import {Trilean, TrileanLib} from "./libraries/Trilean.sol";
 
 contract TestPlus is Test {
-    // =====================
-    // ===== Libraries =====
-    // =====================
+    ////////////////////////////////////////////////////////////////////////////
+    // Libraries
+    ////////////////////////////////////////////////////////////////////////////
 
     using IntervalUint256Lib for IntervalUint256;
     using TrileanLib for Trilean;
 
-    // ==========================
-    // ===== Util Functions =====
-    // ==========================
+    ////////////////////////////////////////////////////////////////////////////
+    // Util Functions
+    ////////////////////////////////////////////////////////////////////////////
 
-    function getAddress(string memory _name)
-        internal
-        pure
-        returns (address addr_)
-    {
+    function getAddress(string memory _name) internal pure returns (address addr_) {
         addr_ = address(uint160(uint256(keccak256(bytes(_name)))));
     }
 
-    // ========================
-    // ===== Extra Cheats =====
-    // =========================
+    ////////////////////////////////////////////////////////////////////////////
+    // Extra Cheats
+    ////////////////////////////////////////////////////////////////////////////
 
-    function dealMore(
-        address _token,
-        address _to,
-        uint256 _amount
-    ) public {
-        (, bytes memory rdat) = _token.staticcall(
-            abi.encodeWithSignature("balanceOf(address)", _to)
-        );
+    function dealMore(address _token, address _to, uint256 _amount) public {
+        (, bytes memory rdat) = _token.staticcall(abi.encodeWithSignature("balanceOf(address)", _to));
         uint256 balance = abi.decode(rdat, (uint256));
 
         deal(_token, _to, balance + _amount, true);
     }
 
-    // =========================
-    // ===== Extra Asserts =====
-    // =========================
+    ////////////////////////////////////////////////////////////////////////////
+    // Extra Asserts
+    ////////////////////////////////////////////////////////////////////////////
 
     function assertZe(uint256 a) internal {
         if (a != 0) {
@@ -55,9 +45,7 @@ contract TestPlus is Test {
         }
     }
 
-    function assertContains(IntervalUint256 memory a, IntervalUint256 memory b)
-        internal
-    {
+    function assertContains(IntervalUint256 memory a, IntervalUint256 memory b) internal {
         if (!a.contains(b)) {
             emit log("Error: (b in a) not satisfied [IntervalUint256]");
             if (b.size() == 0) {
@@ -84,9 +72,7 @@ contract TestPlus is Test {
         assertContains(b, IntervalUint256Lib.fromVal(a));
     }
 
-    function assertLt(IntervalUint256 memory a, IntervalUint256 memory b)
-        internal
-    {
+    function assertLt(IntervalUint256 memory a, IntervalUint256 memory b) internal {
         if (a.lt(b) != Trilean.TRUE) {
             emit log("Error: a < b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
@@ -113,9 +99,7 @@ contract TestPlus is Test {
         assertLt(IntervalUint256Lib.fromVal(a), b);
     }
 
-    function assertLe(IntervalUint256 memory a, IntervalUint256 memory b)
-        internal
-    {
+    function assertLe(IntervalUint256 memory a, IntervalUint256 memory b) internal {
         if (a.le(b) != Trilean.TRUE) {
             emit log("Error: a <= b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
@@ -142,9 +126,7 @@ contract TestPlus is Test {
         assertLe(IntervalUint256Lib.fromVal(a), b);
     }
 
-    function assertGt(IntervalUint256 memory a, IntervalUint256 memory b)
-        internal
-    {
+    function assertGt(IntervalUint256 memory a, IntervalUint256 memory b) internal {
         if (a.gt(b) != Trilean.TRUE) {
             emit log("Error: a > b not satisfied [IntervalUint256]");
             if (b.size() == 0) {
@@ -171,9 +153,7 @@ contract TestPlus is Test {
         assertGt(IntervalUint256Lib.fromVal(a), b);
     }
 
-    function assertGe(IntervalUint256 memory a, IntervalUint256 memory b)
-        internal
-    {
+    function assertGe(IntervalUint256 memory a, IntervalUint256 memory b) internal {
         if (a.ge(b) != Trilean.TRUE) {
             emit log("Error: a >= b not satisfied [IntervalUint256]");
             if (b.size() == 0) {

@@ -24,9 +24,6 @@ contract TabulateTest is TestPlus {
 
         Alignment[] memory alignments = Tabulate.getDefaultAlignments(2);
 
-        assertEq(
-            Tabulate.formatRow(row, widths, alignments),
-            "| test  |   123 |"
-        );
+        assertEq(Tabulate.formatRow(row, widths, alignments), "| test  |   123 |");
     }
 }
