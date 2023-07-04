@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {console2 as console} from "forge-std/console2.sol";
-import {Math} from "openzeppelin-contracts/utils/math/Math.sol";
 
 enum Alignment {
     LEFT,
@@ -33,25 +32,25 @@ library Tabulate {
     // Library functions
     ////////////////////////////////////////////////////////////////////////////
 
-    function log(string[][] memory _table) internal view {
+    function log(string[][] memory _table) internal pure {
         uint256[] memory widths = getDefaultWidths(_table);
 
         log(_table, widths);
     }
 
-    function log(string[][] memory _table, uint256[] memory _widths) internal view {
+    function log(string[][] memory _table, uint256[] memory _widths) internal pure {
         Alignment[] memory alignments = getDefaultAlignments(_widths.length);
 
         log(_table, _widths, alignments);
     }
 
-    function log(string[][] memory _table, Alignment[] memory _alignments) internal view {
+    function log(string[][] memory _table, Alignment[] memory _alignments) internal pure {
         uint256[] memory widths = getDefaultWidths(_table);
 
         log(_table, widths, _alignments);
     }
 
-    function log(string[][] memory _table, uint256[] memory _widths, Alignment[] memory _alignments) internal view {
+    function log(string[][] memory _table, uint256[] memory _widths, Alignment[] memory _alignments) internal pure {
         if (_table.length == 0 || _table[0].length == 0) {
             revert EmptyTable();
         }
@@ -153,7 +152,7 @@ library Tabulate {
         widths_ = new uint256[](numCols);
         for (uint256 i; i < numRows; ++i) {
             for (uint256 j; j < numCols; ++j) {
-                widths_[j] = Math.max(widths_[j], bytes(_table[i][j]).length);
+                widths_[j] = max(widths_[j], bytes(_table[i][j]).length);
             }
         }
     }
@@ -179,6 +178,10 @@ library Tabulate {
     ////////////////////////////////////////////////////////////////////////////
     // Private functions
     ////////////////////////////////////////////////////////////////////////////
+
+    function max(uint256 a, uint256 b) private pure returns (uint256) {
+        return a > b ? a : b;
+    }
 
     function padRightInPlace(string memory _in, uint256 _length, string memory _out, uint256 _left) private pure {
         if (bytes(_in).length > _length) {
